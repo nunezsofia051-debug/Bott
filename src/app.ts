@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json());
 
 app.post("/move", (req, res) => {
-    console.log("Recibido:", req.body);
+    console.log("Llego una peticion");
     const estado = req.body as State;
     const respuesta = procesarMovimiento(estado);
-    console.log("Respuesta del bot:", respuesta);
+   
     res.json(respuesta);
 });
 

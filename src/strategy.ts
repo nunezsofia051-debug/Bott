@@ -3,14 +3,42 @@ export function decidirMovimiento(estado: State): Record<string, string> {
      const movimientos: Record<string, string> = {};
      const tablero = estado.tablero;
 
-     const fila = tablero.length;
-     const columna = tablero[0].length;
+     const cantidadFilas = tablero.length;
+     const cantidadColumnas = tablero[0].length;
 
      const casas: [number, number][] = [];
+    
+     function calcularDestino(
+        fila: number,
+        columna: number,
+        direccion: "N" | "E",
+        dado: number,
+        cantidadFilas: number,
+        cantidadColumnas: number
+        ): [number, number] {
+     
+        let nuevaFila = fila;
+        let nuevaColumna = columna;
 
+        for (let i = 0; i < dado; i++) {
+            if (direccion === "N") {
+                nuevaFila --;
+                if (nuevaFila < 0) {
+                    nuevaFila = cantidadFilas - 1;
+                }
+            }
+            if (direccion === "E") {
+                nuevaColumna ++;
+                if (nuevaColumna >= cantidadColumnas) {
+                    nuevaColumna = 0;
+                }
+            }
+        }
+        return [nuevaFila, nuevaColumna];
+    }
      //Buscamos las casas que todavia quedan en el tablero 
-    for ( let fila = 0; fila < fila; fila++) {
-        for (let columna = 0; columna < columna; columna++) {
+    for ( let fila = 0; fila < cantidadFilas; fila++) {
+        for (let columna = 0; columna < cantidadColumnas; columna++) {
 
             if (tablero[fila][columna] === "N") {
                 casas.push([fila, columna]);
@@ -19,8 +47,8 @@ export function decidirMovimiento(estado: State): Record<string, string> {
     }
 
     // Buscamos las fichas de nuestro jugador
-    for (let fila = 0; fila < fila; fila++) {
-        for (let columna = 0; columna < columna; columna++) {
+    for (let fila = 0; fila < cantidadFilas; fila++) {
+        for (let columna = 0; columna < cantidadColumnas; columna++) {
 
             const ficha = tablero[fila][columna];
             if (!ficha.startsWith(estado.jugador)) {
@@ -33,34 +61,53 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 movimientos[ficha] = "N";
                 continue;
             }
-            let mejorCasa: [number, number] | null = null;
+            let mejorDireccion: "N" | "E" = "N";
             let menorDistancia = Infinity;
-            let distanciaArribaElegida = 0;
-            let distanciaDerechaElegida = 0;
 
-            //Calculamos cual casa esta mas cerca y usamos solamente arriba y derecha 
-
+            //Analizamos cada casa
             for (const casa of casas) {
-                const distanciaArriba = (fila - casa[0] + filas) % filas;
-                const distanciaDerecha = (casa[1] - columna + columnas) % columnas;
-                const distanciaTotal = distanciaArriba + distanciaDerecha;
+                const filaCasa = casa[0];
+                const columnaCasa = casa[1];
+            
 
-                if (distanciaTotal < menorDistancia) {
-                    menorDistancia = distanciaTotal;
-                    mejorCasa = casa;
-                    distanciaArribaElegida = distanciaArriba;
-                    distanciaDerechaElegida = distanciaDerecha;
+                //calcular donde terminamos si usamos la direccion N
+                const destinoN = calcularDestino(
+                    fila,
+                    columna,
+                    "N",
+                    estado.dado,
+                    cantidadFilas,
+                    cantidadColumnas
+                );
+
+                //Calculamos donde terminamos si usamos E
+                const destinoE = calcularDestino(
+                    fila,
+                    columna,
+                    "E",    
+                    estado.dado,
+                    cantidadFilas,
+                    cantidadColumnas
+                );
+                
+                // N termina exactamente sobre una casa
+                if (destinoN[0] === filaCasa && destinoN[1] === columnaCasa) {
+                    mejorDireccion = "N";
+                    menorDistancia = 0;
+                    break;
+                }
+                 
+                // E termina exactamente sobre una casa 
+                if (destinoE[0] === filaCasa && destinoE[1] === columnaCasa) {
+                    mejorDireccion = "E";
+                    menorDistancia = 0;
+                    break;
                 }
             }
-            //Elige el eje que nos acercamos a la casa 
-            if (distanciaArribaElegida >= distanciaDerechaElegida && distanciaArribaElegida > 0) {
-                movimientos[ficha] = "N";
-            } else if (distanciaDerechaElegida > 0) {
-                movimientos[ficha] = "E";
-            } else {
-                movimientos[ficha] = "N";
-            }
+            
+            movimientos[ficha] = mejorDireccion;
         }
     }
-    return movimientos;
-} 
+        return movimientos;
+}
+           
