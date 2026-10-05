@@ -10,6 +10,9 @@ app.post("/move", (req, res) => {
     console.log("Llego una peticion");
     const estado = req.body as State;
     const respuesta = procesarMovimiento(estado);
+
+    console.log("Estado:", estado);
+    console.log("Respuesta:", respuesta);
    
     res.json(respuesta);
 });
