@@ -77,8 +77,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
 
             if (casas.length === 0) {
                 movimientos[ficha] = "N";
-                continue;
-            }
+            } else {
             const objetivo = objetivos.get(ficha);
             let mejorDireccion: "N" | "E" = "N";
             let menorDistancia = Infinity;
@@ -123,7 +122,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                     menorDistancia = 0;
                 }
             }
-            
+            }
             movimientos[ficha] = mejorDireccion;
         
     
