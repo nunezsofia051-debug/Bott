@@ -1,34 +1,34 @@
 import { State } from "./state";
 export function decidirMovimiento(estado: State): Record<string, string> {
-     const movimientos: Record<string, string> = {};
-     const tablero = estado.tablero;
+    const movimientos: Record<string, string> = {};
+    const tablero = estado.tablero;
 
-     const cantidadFilas = tablero.length;
-     const cantidadColumnas = tablero[0].length;
+    const cantidadFilas = tablero.length;
+    const cantidadColumnas = tablero[0].length;
 
-     const casas: [number, number][] = [];
-    
-     function calcularDestino(
+    const casas: [number, number][] = [];
+
+    function calcularDestino(
         fila: number,
         columna: number,
         direccion: "N" | "E",
         dado: number,
         cantidadFilas: number,
         cantidadColumnas: number
-        ): [number, number] {
-     
+    ): [number, number] {
+
         let nuevaFila = fila;
         let nuevaColumna = columna;
 
         for (let i = 0; i < dado; i++) {
             if (direccion === "N") {
-                nuevaFila --;
+                nuevaFila--;
                 if (nuevaFila < 0) {
                     nuevaFila = cantidadFilas - 1;
                 }
             }
             if (direccion === "E") {
-                nuevaColumna ++;
+                nuevaColumna++;
                 if (nuevaColumna >= cantidadColumnas) {
                     nuevaColumna = 0;
                 }
@@ -36,8 +36,8 @@ export function decidirMovimiento(estado: State): Record<string, string> {
         }
         return [nuevaFila, nuevaColumna];
     }
-     //Buscamos las casas que todavia quedan en el tablero 
-    for ( let fila = 0; fila < cantidadFilas; fila++) {
+    //Buscamos las casas que todavia quedan en el tablero 
+    for (let fila = 0; fila < cantidadFilas; fila++) {
         for (let columna = 0; columna < cantidadColumnas; columna++) {
 
             if (tablero[fila][columna] === "N") {
@@ -45,7 +45,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
             }
         }
     }
-    
+
     const fichas: { id: string, fila: number, columna: number }[] = [];
     // Buscamos las fichas de nuestro jugador
     for (let fila = 0; fila < cantidadFilas; fila++) {
@@ -62,22 +62,28 @@ export function decidirMovimiento(estado: State): Record<string, string> {
             });
         }
     }
-            fichas.sort((a, b) => 
-                a.id.localeCompare(b.id));
+    fichas.sort((a, b) =>
+        a.id.localeCompare(b.id));
 
-            const objetivos = new Map<string, [number, number]>();
+    const objetivos = new Map<string, [number, number]>();
 
-            for (let i = 0; i < fichas.length; i++) {
-                if (i < casas.length) {
-                    objetivos.set(fichas[i].id, casas[i]);
-                }
-            }
+    for (let i = 0; i < fichas.length; i++) {
+        if (i < casas.length) {
 
-            // Si no quedan casas, seguimoa hacia arriba 
+            objetivos.set(fichas[i].id, casas[i]);
+        }
 
-            if (casas.length === 0) {
-                movimientos[ficha] = "N";
-            } else {
+    }
+    for (const f of fichas) {
+        const ficha = f.id;
+        const fila = f.fila;
+        const columna = f.columna;
+
+        // Si no quedan casas, seguimoa hacia arriba 
+
+        if (casas.length === 0) {
+            movimientos[ficha] = "N";
+        } else {
             const objetivo = objetivos.get(ficha);
             let mejorDireccion: "N" | "E" = "N";
             let menorDistancia = Infinity;
@@ -87,7 +93,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 const casa = objetivo;
                 const filaCasa = casa[0];
                 const columnaCasa = casa[1];
-            
+
 
                 //calcular donde terminamos si usamos la direccion N
                 const destinoN = calcularDestino(
@@ -103,29 +109,30 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 const destinoE = calcularDestino(
                     fila,
                     columna,
-                    "E",    
+                    "E",
                     estado.dado,
                     cantidadFilas,
                     cantidadColumnas
                 );
-                
+
                 // N termina exactamente sobre una casa
                 if (destinoN[0] === filaCasa && destinoN[1] === columnaCasa) {
                     mejorDireccion = "N";
                     menorDistancia = 0;
-                    
+
+
                 }
-                 
+
                 // E termina exactamente sobre una casa 
                 if (destinoE[0] === filaCasa && destinoE[1] === columnaCasa) {
                     mejorDireccion = "E";
                     menorDistancia = 0;
                 }
             }
-            }
+
             movimientos[ficha] = mejorDireccion;
-        
-    
-        return movimientos;
+        }
+    }
+
+    return movimientos;
 }
-           
