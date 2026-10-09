@@ -11,7 +11,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
     function calcularDestino(
         fila: number,
         columna: number,
-        direccion: "N" | "E" | "S" ,
+        direccion: "N" | "E" | "S" | "O", 
         dado: number,
         cantidadFilas: number,
         cantidadColumnas: number
@@ -37,6 +37,12 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 nuevaFila++;
                 if (nuevaFila >= cantidadFilas) {
                     nuevaFila = 0;
+                }
+            }
+            if (direccion === "O") {
+                nuevaColumna--;
+                if (nuevaColumna < 0) {
+                    nuevaColumna = cantidadColumnas - 1;
                 }
             }
         }
@@ -78,8 +84,19 @@ export function decidirMovimiento(estado: State): Record<string, string> {
 
             objetivos.set(fichas[i].id, casas[i]);
         }
-
     }
+
+    //calcular distancia circular
+    function distanciaCircular(
+        posicion1: number,
+        posicion2: number,
+        limite: number
+    ): number {
+        const distanciaDirecta = Math.abs(posicion1 - posicion2);
+        const distanciaCircular = limite - distanciaDirecta;
+        return Math.min(distanciaDirecta, distanciaCircular);
+    }
+
     for (const f of fichas) {
         const ficha = f.id;
         const fila = f.fila;
@@ -91,63 +108,48 @@ export function decidirMovimiento(estado: State): Record<string, string> {
             movimientos[ficha] = "N";
         } else {
             const objetivo = objetivos.get(ficha);
-            let mejorDireccion: "N" | "E" | "S" = "N";
+            let mejorDireccion: "N" | "E" | "S" | "O" = "N";
             let menorDistancia = Infinity;
 
             //Analizamos cada casa
             if (objetivo) {
-                const casa = objetivo;
-                const filaCasa = casa[0];
-                const columnaCasa = casa[1];
+                const filaCasa = objetivo[0];
+                const columnaCasa = objetivo[1];
 
+                const direcciones: ("N" | "E" | "S" | "O")[] = ["N", "E", "S", "O"];
 
-                //calcular donde terminamos si usamos la direccion N
-                const destinoN = calcularDestino(
-                    fila,
-                    columna,
-                    "N",
-                    estado.dado,
-                    cantidadFilas,
-                    cantidadColumnas
-                );
+            for (const direccion of direcciones) {
+            const destino = calcularDestino(
+            fila,
+            columna,
+        direccion,
+        estado.dado,
+        cantidadFilas,
+        cantidadColumnas
+    );
 
-                //Calculamos donde terminamos si usamos E
-                const destinoE = calcularDestino(
-                    fila,
-                    columna,
-                    "E",
-                    estado.dado,
-                    cantidadFilas,
-                    cantidadColumnas
-                );
+    const distanciaFilas = distanciaCircular(
+        destino[0],
+        filaCasa,
+        cantidadFilas
+    );
 
-                // N termina exactamente sobre una casa
-                if (destinoN[0] === filaCasa && destinoN[1] === columnaCasa) {
-                    mejorDireccion = "N";
-                    menorDistancia = 0;
+    const distanciaColumnas = distanciaCircular(
+        destino[1],
+        columnaCasa,
+        cantidadColumnas
+    );
 
+    const distanciaTotal = distanciaFilas + distanciaColumnas;
 
-                }
+    if (distanciaTotal < menorDistancia) {
+        menorDistancia = distanciaTotal;
+        mejorDireccion = direccion;
+    }
+}
 
-                // E termina exactamente sobre una casa 
-                if (destinoE[0] === filaCasa && destinoE[1] === columnaCasa) {
-                    mejorDireccion = "E";
-                    menorDistancia = 0;
-                }
-
-                // S termina exactamente sobre una casa
-                const destinoS = calcularDestino(
-                    fila,
-                    columna,
-                    "S",
-                    estado.dado,
-                    cantidadFilas,
-                    cantidadColumnas
-                );
-                if (destinoS[0] === filaCasa && destinoS[1] === columnaCasa) {
-                    mejorDireccion = "S";
-                    menorDistancia = 0;
-                }
+              
+              
             }
 
             movimientos[ficha] = mejorDireccion;
