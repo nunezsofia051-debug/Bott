@@ -11,7 +11,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
     function calcularDestino(
         fila: number,
         columna: number,
-        direccion: "N" | "E",
+        direccion: "N" | "E" | "S" ,
         dado: number,
         cantidadFilas: number,
         cantidadColumnas: number
@@ -31,6 +31,12 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 nuevaColumna++;
                 if (nuevaColumna >= cantidadColumnas) {
                     nuevaColumna = 0;
+                }
+            }
+            if (direccion === "S") {
+                nuevaFila++;
+                if (nuevaFila >= cantidadFilas) {
+                    nuevaFila = 0;
                 }
             }
         }
@@ -85,7 +91,7 @@ export function decidirMovimiento(estado: State): Record<string, string> {
             movimientos[ficha] = "N";
         } else {
             const objetivo = objetivos.get(ficha);
-            let mejorDireccion: "N" | "E" = "N";
+            let mejorDireccion: "N" | "E" | "S" = "N";
             let menorDistancia = Infinity;
 
             //Analizamos cada casa
@@ -126,6 +132,20 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 // E termina exactamente sobre una casa 
                 if (destinoE[0] === filaCasa && destinoE[1] === columnaCasa) {
                     mejorDireccion = "E";
+                    menorDistancia = 0;
+                }
+
+                // S termina exactamente sobre una casa
+                const destinoS = calcularDestino(
+                    fila,
+                    columna,
+                    "S",
+                    estado.dado,
+                    cantidadFilas,
+                    cantidadColumnas
+                );
+                if (destinoS[0] === filaCasa && destinoS[1] === columnaCasa) {
+                    mejorDireccion = "S";
                     menorDistancia = 0;
                 }
             }
