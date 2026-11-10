@@ -73,59 +73,57 @@ export function decidirMovimiento(estado: State): Record<string, string> {
                 }
             }
 
-            // Si no quedan casas, seguimoa hacia arriba 
+         for (const fichaActual of fichas) {
+            const ficha = fichaActual.id;
+            const fila = fichaActual.fila;
+            const columna = fichaActual.columna;
 
             if (casas.length === 0) {
                 movimientos[ficha] = "N";
-            } else {
+                continue;
+            }
+
             const objetivo = objetivos.get(ficha);
             let mejorDireccion: "N" | "E" = "N";
-            let menorDistancia = Infinity;
 
-            //Analizamos cada casa
             if (objetivo) {
-                const casa = objetivo;
-                const filaCasa = casa[0];
-                const columnaCasa = casa[1];
+                const filaCasa = objetivo[0];
+                const columnaCasa = objetivo[1];
+
+               const destinoN = calcularDestino(
+             fila,
+             columna,
+             "N",
+             estado.dado,
+             cantidadFilas,
+             cantidadColumnas
+             );
+
+            const destinoE = calcularDestino(
+              fila,
+             columna,
+             "E",
+             estado.dado,
+             cantidadFilas,
+             cantidadColumnas
+            );
             
-
-                //calcular donde terminamos si usamos la direccion N
-                const destinoN = calcularDestino(
-                    fila,
-                    columna,
-                    "N",
-                    estado.dado,
-                    cantidadFilas,
-                    cantidadColumnas
-                );
-
-                //Calculamos donde terminamos si usamos E
-                const destinoE = calcularDestino(
-                    fila,
-                    columna,
-                    "E",    
-                    estado.dado,
-                    cantidadFilas,
-                    cantidadColumnas
-                );
-                
-                // N termina exactamente sobre una casa
-                if (destinoN[0] === filaCasa && destinoN[1] === columnaCasa) {
-                    mejorDireccion = "N";
-                    menorDistancia = 0;
-                    
-                }
-                 
-                // E termina exactamente sobre una casa 
-                if (destinoE[0] === filaCasa && destinoE[1] === columnaCasa) {
-                    mejorDireccion = "E";
-                    menorDistancia = 0;
-                }
+            const distanciaN = Math.abs(destinoN[0] - filaCasa) + Math.abs(destinoN[1] - columnaCasa);
+            const distanciaE = Math.abs(destinoE[0] - filaCasa) + Math.abs(destinoE[1] - columnaCasa);
+            
+             if (distanciaN <= distanciaE) {
+             mejorDireccion = "N";
+             } else {
+            mejorDireccion = "E";
+             }
+            
+             
             }
-            }
-            movimientos[ficha] = mejorDireccion;
+             movimientos[ficha] = mejorDireccion;
+        }
         
-    
-        return movimientos;
-}
+     return movimientos;
+ }
+           
+
            
