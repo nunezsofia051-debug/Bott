@@ -8,7 +8,7 @@ app.use(express.json());
 
 app.get("/profile", (req, res) => {
   return res.status(200).json({
-    name: "Bot peroncho",
+   name: "Bot peroncho - Preview",
     colors: ["#61b1e3", "#f7eeeb"],
   });
 });
