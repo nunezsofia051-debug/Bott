@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+
+  "engines": {
+  "node": "26.13.0"
+},
   "scripts": {
   "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
   "start": "ts-node src/server.ts",
